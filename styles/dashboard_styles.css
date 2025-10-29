@@ -23,3 +23,11 @@ QMenuBar{
     background-color: rgb(238, 201, 132);
 
 }
+QAction {
+    background-color: rgb(188, 108, 37);
+    color: white;
+    border: 2px solid #8B4513;
+    border-radius: 3px;
+    margin: 10%;
+    padding: 3%;
+}
