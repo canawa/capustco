@@ -1,7 +1,8 @@
 from ast import Load
+from datetime import datetime
 from PySide6.QtCore import QSize
 from PySide6.QtGui import QPalette, QColor, QIcon, QTextBlock
-from PySide6.QtWidgets import QDockWidget, QPushButton, QHBoxLayout, QVBoxLayout, QTableView, QTextEdit, QVBoxLayout, QWidget, QTableWidget, QHeaderView, QLabel
+from PySide6.QtWidgets import QDockWidget, QPushButton, QHBoxLayout, QVBoxLayout, QTableView, QTextEdit, QVBoxLayout, QWidget, QTableWidget, QHeaderView, QLabel, QTableWidgetItem
 from custom_functions.load_css import LoadCss
 class DirectoryWindow(QDockWidget): # QDockWidget это рамка + механика состыковки, потому надо внутри добавить QWidget
     def __init__(self):
@@ -19,7 +20,7 @@ class DirectoryWindow(QDockWidget): # QDockWidget это рамка + механ
         create_button.setGeometry(0,0,240,180)
         create_button.clicked.connect(self.add_data)
 # РАБОТА С ТАБЛИЦЕЙ И ЕЕ НАСТРОЙКИ
-        self.table = QTableWidget(5,3) # табличка 5 на 3
+        self.table = QTableWidget(0,3) # табличка 5 на 3
         self.table.setHorizontalHeaderLabels(['Дата', 'Наименование', 'Цена']) # переименовываем колонки
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers) # хз как это работает, но не дает редактировать, но можно копировать
         self.table_resize()
@@ -35,6 +36,7 @@ class DirectoryWindow(QDockWidget): # QDockWidget это рамка + механ
             header.setSectionResizeMode(i, QHeaderView.ResizeToContents) # для всех делаем растяжение по содержимому, кроме последнего.
         
         header.setSectionResizeMode(header.count() - 1, QHeaderView.Stretch) # для последнего делаем растяжение по длине.
+        # ТУТ ДОБАВЛЯЮТСЯ ДАННЫЕ В ТАБЛИЦУ
     def add_data(self):
         self.window = QWidget() # создаем виджет
         self.window.setLayout(QVBoxLayout())
@@ -45,7 +47,9 @@ class DirectoryWindow(QDockWidget): # QDockWidget это рамка + механ
         header = self.table.horizontalHeader() # получаем объект, который хранит инфу о шапке таблицы
         self.window.setStyleSheet(LoadCss().load_file('styles/input_data.css')) # стили надо для каждого виджета отдельно
 
-        for i in range(1, header.count()):
+
+        self.input_fields = []
+        for i in range(1, header.count()): # тут создаем поля для ввода
             input = QTextEdit('') # создаем поле для ввода
             input.setFixedSize(QSize(200, 30))  # устанавливаю фиксированный размер для поля
             
@@ -58,14 +62,13 @@ class DirectoryWindow(QDockWidget): # QDockWidget это рамка + механ
             field_container.layout().addWidget(text_label)
             field_container.layout().addWidget(input)
             field_container.setStyleSheet(LoadCss().load_file('styles/input_data.css'))
-
+            self.input_fields.append(input)
             self.window.layout().addWidget(field_container) # это чуть потом перепишем, чтобы можно было к любому количеству столбиков задавать значения, через цикл сделаю
         
-
-
         save_button = QPushButton('Сохранить')
+        save_button.clicked.connect(lambda: self.save_and_quit(quit=False))
         save_and_quit_button = QPushButton('Сохранить и выйти')
-
+        save_and_quit_button.clicked.connect(lambda: self.save_and_quit(quit=True))
         button_holder = QWidget()
         button_holder.setLayout(QHBoxLayout())
         button_holder.layout().addWidget(save_button)
@@ -75,3 +78,15 @@ class DirectoryWindow(QDockWidget): # QDockWidget это рамка + механ
         self.window.layout().addWidget(button_holder)
         self.window.setFixedSize(600, header.count()*40 + 70) # устанавливаю фиксированный размер, чтобы его нельзя было поменять
         self.window.show()
+
+    def save_and_quit(self, quit=False): # тут отлавливаем введенные данные и закрываем окно
+        self.table.insertRow(self.table.rowCount()) # чтобы добавить новую строку
+        for i in range(len(self.input_fields)):
+            data = self.input_fields[i].toPlainText() # получаем данные из полей, здесь построчно и сразу построчно добавляем в таблицу
+            self.table.setItem(self.table.rowCount() - 1, i+1, QTableWidgetItem(data)) # i+1 потому что нулевая колонка это дата
+            self.input_fields[i].clear()
+        self.table.setItem(self.table.rowCount() - 1, 0, QTableWidgetItem(datetime.now().strftime('%d.%m.%Y %H:%M')))
+        self.table.resizeRowsToContents() # чтобы строки растянулись по содержимому
+        if quit == True:
+            self.window.close()
+        
