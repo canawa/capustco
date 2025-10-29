@@ -1,8 +1,10 @@
 from PySide6.QtGui import QPalette, QColor, QIcon
 from PySide6.QtWidgets import QMainWindow, QPushButton, QHBoxLayout, QWidget
+from custom_functions.load_css import LoadCss
 class DirectoryWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setStyleSheet(LoadCss().load_file('styles/dashboard_styles.css')) # используем мою самописную гениальную технологию
         self.setWindowTitle('Новый справочник')
         self.setGeometry(0, 0, 1600, 900)
         self.setWindowIcon(QIcon('images/logo.png')) # ставим иконки
