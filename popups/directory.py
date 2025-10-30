@@ -2,32 +2,27 @@ from ast import Load
 from datetime import datetime
 from PySide6.QtCore import QSize
 from PySide6.QtGui import QPalette, QColor, QIcon, QTextBlock
-from PySide6.QtWidgets import QDockWidget, QPushButton, QHBoxLayout, QVBoxLayout, QTableView, QTextEdit, QVBoxLayout, QWidget, QTableWidget, QHeaderView, QLabel, QTableWidgetItem
+from PySide6.QtWidgets import QDockWidget, QMainWindow, QPushButton, QHBoxLayout, QVBoxLayout, QTableView, QTextEdit, QVBoxLayout, QWidget, QTableWidget, QHeaderView, QLabel, QTableWidgetItem
 from custom_functions.load_css import LoadCss
-class DirectoryWindow(QDockWidget): # QDockWidget это рамка + механика состыковки, потому надо внутри добавить QWidget
+class DirectoryWindow(QWidget): 
     def __init__(self):
         super().__init__()
         
-
+        self.setLayout(QVBoxLayout()) # уставноит лэйаут объекту класса
         self.setStyleSheet(LoadCss().load_file('styles/dashboard_styles.css')) # используем мою самописную гениальную технологию
         self.setWindowTitle('Новый справочник')
         self.setWindowIcon(QIcon('images/logo.png')) # ставим иконки
-        # QDockWidget это обертка для моего контейнера
-        container = QWidget() # создаем контейнер для кнопки
-        container.setLayout(QHBoxLayout()) # создаем макет для кнопки
-
         create_button = QPushButton('Создать')
         create_button.setGeometry(0,0,240,180)
         create_button.clicked.connect(self.add_data)
 # РАБОТА С ТАБЛИЦЕЙ И ЕЕ НАСТРОЙКИ
-        self.table = QTableWidget(0,3) # табличка 5 на 3
-        self.table.setHorizontalHeaderLabels(['Дата', 'Наименование', 'Цена']) # переименовываем колонки
+        self.table = QTableWidget(0,1) # табличка 5 на 3
+        self.table.setHorizontalHeaderLabels(['Еденицы измерения']) # переименовываем колонки
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers) # хз как это работает, но не дает редактировать, но можно копировать
         self.table_resize()
 
-        container.layout().addWidget(self.table) # добавляем кнопку в макет
-        container.layout().addWidget(create_button)
-        self.setWidget(container) # Не addWidget, в QDockWidget нет addWidget, только setWidget, единственный виджет который можно добавить
+        self.layout().addWidget(self.table) # добавляем кнопку в макет
+        self.layout().addWidget(create_button)
 
     def table_resize(self): # функция чтобы табличка растянулась
         header = self.table.horizontalHeader() # берет объект который отвечает за строку с названиями колонок
@@ -49,7 +44,7 @@ class DirectoryWindow(QDockWidget): # QDockWidget это рамка + механ
 
 
         self.input_fields = []
-        for i in range(1, header.count()): # тут создаем поля для ввода
+        for i in range(0, header.count()): # тут создаем поля для ввода
             input = QTextEdit('') # создаем поле для ввода
             input.setFixedSize(QSize(200, 30))  # устанавливаю фиксированный размер для поля
             
@@ -83,9 +78,9 @@ class DirectoryWindow(QDockWidget): # QDockWidget это рамка + механ
         self.table.insertRow(self.table.rowCount()) # чтобы добавить новую строку
         for i in range(len(self.input_fields)):
             data = self.input_fields[i].toPlainText() # получаем данные из полей, здесь построчно и сразу построчно добавляем в таблицу
-            self.table.setItem(self.table.rowCount() - 1, i+1, QTableWidgetItem(data)) # i+1 потому что нулевая колонка это дата
+            self.table.setItem(self.table.rowCount()-1 , i, QTableWidgetItem(data)) # i+1 потому что нулевая колонка это дата
             self.input_fields[i].clear()
-        self.table.setItem(self.table.rowCount() - 1, 0, QTableWidgetItem(datetime.now().strftime('%d.%m.%Y %H:%M')))
+        # self.table.setItem(self.table.rowCount() - 1, 0, QTableWidgetItem(datetime.now().strftime('%d.%m.%Y %H:%M')))
         self.table.resizeRowsToContents() # чтобы строки растянулись по содержимому
         if quit == True:
             self.window.close()

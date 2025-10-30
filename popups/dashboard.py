@@ -5,7 +5,7 @@ from PySide6.QtGui import QAction, QIcon, QPalette, QColor
 from PySide6.QtWidgets import QMessageBox, QPushButton, QHBoxLayout, QStatusBar, QWidget, QMainWindow, QToolBar
 from custom_functions.load_css import LoadCss # используем мое самописное решение для стилей
 from popups.directory import DirectoryWindow
-
+from components.list import List
 
 class Dashboard(QMainWindow):
     def __init__(self):
@@ -29,9 +29,8 @@ class Dashboard(QMainWindow):
         toolbar = QToolBar('Main toolbar') # создаем тулбар
         self.addToolBar(toolbar) # добавляем объект класса QToolBar в само приложение
 
-        create_dir_action = QAction('Создать справочник', self) # action это как кнопка только круче, можно добавлять картинки и шорткаты
-        create_dir_action.setShortcut('Ctrl+N') # создаем шорткат для кнопки
-        create_dir_action.triggered.connect(self.create_directory)
+        create_dir_action = QAction('Справочники', self) # action это как кнопка только круче, можно добавлять картинки и шорткаты
+        create_dir_action.triggered.connect(self.open_dir_list)
 
 
         create_dir_action.setToolTip('Создаст новый справочник (Ctrl + N)') # при наведении больше чем на секунду, вылазит подсказка с этим текстом
@@ -44,6 +43,12 @@ class Dashboard(QMainWindow):
         if message == QMessageBox.Ok:
             self.close()
         
+    def open_dir_list(self):
+        print('Открываем менюху с выбором справочников')
+        self.list_widget = List()
+        self.setCentralWidget(self.list_widget)
+
+
     def create_directory(self):
         dock = DirectoryWindow() # создаем объект класса DirectoryWindow
         self.addDockWidget(Qt.LeftDockWidgetArea, dock) # добавляем объект класса DirectoryWindow в само приложение
