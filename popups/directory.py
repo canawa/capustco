@@ -5,9 +5,9 @@ from PySide6.QtGui import QPalette, QColor, QIcon, QTextBlock
 from PySide6.QtWidgets import QDockWidget, QMainWindow, QPushButton, QHBoxLayout, QVBoxLayout, QTableView, QTextEdit, QVBoxLayout, QWidget, QTableWidget, QHeaderView, QLabel, QTableWidgetItem
 from custom_functions.load_css import LoadCss
 class DirectoryWindow(QWidget): 
-    def __init__(self):
+    def __init__(self, columns):
         super().__init__()
-        
+        self.columns = columns
         self.setLayout(QVBoxLayout()) # уставноит лэйаут объекту класса
         self.setStyleSheet(LoadCss().load_file('styles/dashboard_styles.css')) # используем мою самописную гениальную технологию
         self.setWindowTitle('Новый справочник')
@@ -16,8 +16,8 @@ class DirectoryWindow(QWidget):
         create_button.setGeometry(0,0,240,180)
         create_button.clicked.connect(self.add_data)
 # РАБОТА С ТАБЛИЦЕЙ И ЕЕ НАСТРОЙКИ
-        self.table = QTableWidget(0,1) # табличка 5 на 3
-        self.table.setHorizontalHeaderLabels(['Еденицы измерения']) # переименовываем колонки
+        self.table = QTableWidget(0,len(self.columns)) # табличка 5 на 3
+        self.table.setHorizontalHeaderLabels(self.columns) # переименовываем колонки
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers) # хз как это работает, но не дает редактировать, но можно копировать
         self.table_resize()
 
@@ -68,10 +68,10 @@ class DirectoryWindow(QWidget):
         button_holder.setLayout(QHBoxLayout())
         button_holder.layout().addWidget(save_button)
         button_holder.layout().addWidget(save_and_quit_button)
-        button_holder.setFixedSize(QSize(600, 70))
+        button_holder.setFixedSize(QSize(600, 100))
 
         self.window.layout().addWidget(button_holder)
-        self.window.setFixedSize(600, header.count()*40 + 70) # устанавливаю фиксированный размер, чтобы его нельзя было поменять
+        # self.window.setFixedSize(600, header.count()*40) # устанавливаю фиксированный размер, чтобы его нельзя было поменять
         self.window.show()
 
     def save_and_quit(self, quit=False): # тут отлавливаем введенные данные и закрываем окно
