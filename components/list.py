@@ -33,7 +33,7 @@ class List(QMainWindow):
 
         for name in self.names: # перебираем все названия справочников
             btn = QPushButton(name[0])
-            btn.clicked.connect(lambda checked, n=name: self.open_directory(json.loads(n[1]))) # открываем справочник, и расшифровываем вторую часть кортежа через json
+            btn.clicked.connect(lambda checked, n=name: self.open_directory(n[0], json.loads(n[1]))) # открываем справочник, и расшифровываем вторую часть кортежа через json
             list_widget.layout().addWidget(btn)
 
         widget.layout().addWidget(list_widget)
@@ -41,9 +41,9 @@ class List(QMainWindow):
         self.setWindowTitle('Список справочников')
         self.setWindowIcon(QIcon('images/logo.png'))
 
-    def open_directory(self, columns):
-        self.setWindowTitle(columns[0])
-        self.directory = DirectoryWindow(columns)
+    def open_directory(self, name, columns):
+        # self.setWindowTitle(name)
+        self.directory = DirectoryWindow(name, columns)
         self.setCentralWidget(self.directory)
 
     def create_directory(self):
@@ -77,12 +77,12 @@ class List(QMainWindow):
     def create_directory_accept(self):
         self.columns = self.columns_text.toPlainText().split('\n') # сплитуем текст на массив по запятой и запихиваем в columns массив
         self.columns = self.columns_text.toPlainText().split(',') # сплитуем текст на массив по запятой и запихиваем в columns массив
-        self.columns = [column.strip() for column in self.columns] # удаляем пробелы из массива
+        self.columns = [column.strip() for column in self.columns] # удаляем пробелы из массива по краям
         self.create_dir_dialog.close()
         with sq.connect('database.db') as con:
             cur = con.cursor()
-            cur.execute('CREATE TABLE IF NOT EXISTS directories (id INTEGER PRIMARY KEY, name TEXT, columns TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS directories (id INTEGER PRIMARY KEY, name TEXT UNIQUE, columns TEXT)')
             cur.execute('INSERT INTO directories (name, columns) VALUES (?, ?)', (self.set_dir_name.toPlainText(), json.dumps(self.columns)))
         
-        self.open_directory(self.columns)
+        self.open_directory(self.columns, self.set_dir_name.toPlainText())
         

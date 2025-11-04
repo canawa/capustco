@@ -4,13 +4,15 @@ from PySide6.QtCore import QSize
 from PySide6.QtGui import QPalette, QColor, QIcon, QTextBlock
 from PySide6.QtWidgets import QDockWidget, QMainWindow, QPushButton, QHBoxLayout, QVBoxLayout, QTableView, QTextEdit, QVBoxLayout, QWidget, QTableWidget, QHeaderView, QLabel, QTableWidgetItem
 from custom_functions.load_css import LoadCss
+import sqlite3 as sq
 class DirectoryWindow(QWidget): 
-    def __init__(self, columns):
+    def __init__(self, name, columns):
         super().__init__()
         self.columns = columns
+        self.name = name
         self.setLayout(QVBoxLayout()) # уставноит лэйаут объекту класса
         self.setStyleSheet(LoadCss().load_file('styles/dashboard_styles.css')) # используем мою самописную гениальную технологию
-        self.setWindowTitle('Новый справочник')
+        self.setWindowTitle(self.name)
         self.setWindowIcon(QIcon('images/logo.png')) # ставим иконки
         create_button = QPushButton('Создать')
         create_button.setGeometry(0,0,240,180)
@@ -47,7 +49,6 @@ class DirectoryWindow(QWidget):
         for i in range(0, header.count()): # тут создаем поля для ввода
             input = QTextEdit('') # создаем поле для ввода
             input.setFixedSize(QSize(200, 30))  # устанавливаю фиксированный размер для поля
-            
             field_container = QWidget()
             field_container.setLayout(QHBoxLayout())
             field_container.setFixedSize(QSize(300, 50))
@@ -81,6 +82,11 @@ class DirectoryWindow(QWidget):
             self.table.setItem(self.table.rowCount()-1 , i, QTableWidgetItem(data)) # i+1 потому что нулевая колонка это дата
             self.input_fields[i].clear()
         # self.table.setItem(self.table.rowCount() - 1, 0, QTableWidgetItem(datetime.now().strftime('%d.%m.%Y %H:%M')))
+        with sq.connect('database.db') as con:
+            cur = con.cursor()
+            cols_sql = ', '.join([f'{col} TEXT' for col in self.columns]) # создаст колонку вида col1 TEXT, col2 TEXT, ...
+            cur.execute(f'CREATE TABLE IF NOT EXISTS {self.name} (id INTEGER PRIMARY KEY, {cols_sql})') # создаст таблицу вида name (id INTEGER PRIMARY KEY, col1 TEXT, col2 TEXT, ...)
+
         self.table.resizeRowsToContents() # чтобы строки растянулись по содержимому
         if quit == True:
             self.window.close()
