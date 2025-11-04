@@ -12,7 +12,6 @@ class DirectoryWindow(QWidget):
         self.name = name
         self.setLayout(QVBoxLayout()) # уставноит лэйаут объекту класса
         self.setStyleSheet(LoadCss().load_file('styles/dashboard_styles.css')) # используем мою самописную гениальную технологию
-        self.setWindowTitle(self.name)
         self.setWindowIcon(QIcon('images/logo.png')) # ставим иконки
         create_button = QPushButton('Создать')
         create_button.setGeometry(0,0,240,180)
@@ -76,18 +75,29 @@ class DirectoryWindow(QWidget):
         self.window.show()
 
     def save_and_quit(self, quit=False): # тут отлавливаем введенные данные и закрываем окно
+        try:
+            with sq.connect('database.db') as con:
+                cur = con.cursor()
+                cur.execute(f'CREATE TABLE IF NOT EXISTS {self.name} (id INTEGER PRIMARY KEY, {", ".join([f"{col} TEXT" for col in self.columns])})')
+                values = [field.toPlainText() for field in self.input_fields]
+                placeholders = ','.join(['?'] * len(values))
+                sql = f'INSERT INTO "{self.name}" ({",".join([f'"{c}"' for c in self.columns])}) VALUES ({placeholders})'
+                cur.execute(sql, values)  # <- здесь values распаковываются автоматически
+        except Exception as e:
+            print(e)
+        
+
         self.table.insertRow(self.table.rowCount()) # чтобы добавить новую строку
         for i in range(len(self.input_fields)):
             data = self.input_fields[i].toPlainText() # получаем данные из полей, здесь построчно и сразу построчно добавляем в таблицу
             self.table.setItem(self.table.rowCount()-1 , i, QTableWidgetItem(data)) # i+1 потому что нулевая колонка это дата
             self.input_fields[i].clear()
-        # self.table.setItem(self.table.rowCount() - 1, 0, QTableWidgetItem(datetime.now().strftime('%d.%m.%Y %H:%M')))
-        with sq.connect('database.db') as con:
-            cur = con.cursor()
-            cols_sql = ', '.join([f'{col} TEXT' for col in self.columns]) # создаст колонку вида col1 TEXT, col2 TEXT, ...
-            cur.execute(f'CREATE TABLE IF NOT EXISTS {self.name} (id INTEGER PRIMARY KEY, {cols_sql})') # создаст таблицу вида name (id INTEGER PRIMARY KEY, col1 TEXT, col2 TEXT, ...)
+        
+        
 
         self.table.resizeRowsToContents() # чтобы строки растянулись по содержимому
         if quit == True:
             self.window.close()
+        
+
         

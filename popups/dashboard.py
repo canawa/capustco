@@ -4,7 +4,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QIcon, QPalette, QColor
 from PySide6.QtWidgets import QMessageBox, QPushButton, QHBoxLayout, QStatusBar, QWidget, QMainWindow, QToolBar
 from custom_functions.load_css import LoadCss # используем мое самописное решение для стилей
-from popups.directory import DirectoryWindow
 from components.list import List
 import sqlite3 as sq
 

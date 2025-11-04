@@ -84,5 +84,5 @@ class List(QMainWindow):
             cur.execute('CREATE TABLE IF NOT EXISTS directories (id INTEGER PRIMARY KEY, name TEXT UNIQUE, columns TEXT)')
             cur.execute('INSERT INTO directories (name, columns) VALUES (?, ?)', (self.set_dir_name.toPlainText(), json.dumps(self.columns)))
         
-        self.open_directory(self.columns, self.set_dir_name.toPlainText())
+        self.open_directory(self.set_dir_name.toPlainText(), self.columns)
         
