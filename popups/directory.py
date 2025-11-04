@@ -16,7 +16,7 @@ class DirectoryWindow(QWidget):
         create_button.setGeometry(0,0,240,180)
         create_button.clicked.connect(self.add_data)
 # РАБОТА С ТАБЛИЦЕЙ И ЕЕ НАСТРОЙКИ
-        self.table = QTableWidget(0,len(self.columns)) # табличка 5 на 3
+        self.table = QTableWidget(0,len(self.columns)) # табличка сколько угодно на сколько угодно
         self.table.setHorizontalHeaderLabels(self.columns) # переименовываем колонки
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers) # хз как это работает, но не дает редактировать, но можно копировать
         self.table_resize()

@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QMessageBox, QPushButton, QHBoxLayout, QStatusBar,
 from custom_functions.load_css import LoadCss # используем мое самописное решение для стилей
 from popups.directory import DirectoryWindow
 from components.list import List
+import sqlite3 as sq
 
 class Dashboard(QMainWindow):
     def __init__(self):
@@ -47,8 +48,3 @@ class Dashboard(QMainWindow):
         print('Открываем менюху с выбором справочников')
         self.list_widget = List()
         self.setCentralWidget(self.list_widget)
-
-
-    def create_directory(self):
-        dock = DirectoryWindow() # создаем объект класса DirectoryWindow
-        self.addDockWidget(Qt.LeftDockWidgetArea, dock) # добавляем объект класса DirectoryWindow в само приложение
