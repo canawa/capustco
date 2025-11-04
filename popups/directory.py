@@ -78,10 +78,10 @@ class DirectoryWindow(QWidget):
         try:
             with sq.connect('database.db') as con:
                 cur = con.cursor()
-                cur.execute(f'CREATE TABLE IF NOT EXISTS {self.name} (id INTEGER PRIMARY KEY, {", ".join([f"{col} TEXT" for col in self.columns])})')
+                cur.execute(f'CREATE TABLE IF NOT EXISTS {self.name} (id INTEGER PRIMARY KEY, {", ".join([f"{col} NUMERIC" for col in self.columns])})') # NUMERIC - сам преобразовывает типы
                 values = [field.toPlainText() for field in self.input_fields]
                 placeholders = ','.join(['?'] * len(values))
-                sql = f'INSERT INTO "{self.name}" ({",".join([f'"{c}"' for c in self.columns])}) VALUES ({placeholders})'
+                sql = f'INSERT INTO "{self.name}" ({",".join([f'"{i}"' for i in self.columns])}) VALUES ({placeholders})'
                 cur.execute(sql, values)  # <- здесь values распаковываются автоматически
         except Exception as e:
             print(e)

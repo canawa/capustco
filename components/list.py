@@ -20,7 +20,7 @@ class List(QMainWindow):
         # кнопки и названия справочников (+ названия колонок)
         with sq.connect('database.db') as con:
             cur = con.cursor()
-            cur.execute('CREATE TABLE IF NOT EXISTS directories (id INTEGER PRIMARY KEY, name TEXT, columns TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS directories (id INTEGER PRIMARY KEY, name NUMERIC, columns NUMERIC)')
             cur.execute('SELECT name, columns FROM directories')
             self.names = cur.fetchall()
 
@@ -75,13 +75,12 @@ class List(QMainWindow):
 
         
     def create_directory_accept(self):
-        self.columns = self.columns_text.toPlainText().split('\n') # сплитуем текст на массив по запятой и запихиваем в columns массив
-        self.columns = self.columns_text.toPlainText().split(',') # сплитуем текст на массив по запятой и запихиваем в columns массив
+        self.columns = self.columns_text.toPlainText().replace('\n', ',').split(',')
         self.columns = [column.strip() for column in self.columns] # удаляем пробелы из массива по краям
         self.create_dir_dialog.close()
         with sq.connect('database.db') as con:
             cur = con.cursor()
-            cur.execute('CREATE TABLE IF NOT EXISTS directories (id INTEGER PRIMARY KEY, name TEXT UNIQUE, columns TEXT)')
+            cur.execute('CREATE TABLE IF NOT EXISTS directories (id INTEGER PRIMARY KEY, name NUMERIC UNIQUE, columns NUMERIC)')
             cur.execute('INSERT INTO directories (name, columns) VALUES (?, ?)', (self.set_dir_name.toPlainText(), json.dumps(self.columns)))
         
         self.open_directory(self.set_dir_name.toPlainText(), self.columns)

@@ -1,8 +1,5 @@
-s = str(input())
-for i in range(0,len(s)):
-    p = s
-    p = p.replace(p[i],'', 1)
-    if p == p[::-1]:
-        print(p)
-        print(i)
+columns = ['man',1,2,3,4,5]
+for i in columns:
+    if type(i)==int:
+        print('Есть число')
         break
