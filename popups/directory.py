@@ -24,6 +24,23 @@ class DirectoryWindow(QWidget):
 
         self.layout().addWidget(self.table) # добавляем кнопку в макет
         self.layout().addWidget(create_button)
+        try:
+            with sq.connect('database.db') as con:
+                cur = con.cursor()
+                cur.execute(f"""
+                    SELECT * FROM "{name}" 
+                
+                """)
+                
+                
+                for data in cur:
+                    self.table.insertRow(self.table.rowCount()) # добавляем новую строку
+                    for i in range(len(data)): # по длине колонок
+                        self.table.setItem(self.table.rowCount()-1, i, QTableWidgetItem(data[i])) # добавляем в последний ряд на i позицию данные из запроса  
+        except Exception as e:
+            print(e)
+
+        
 
     def table_resize(self): # функция чтобы табличка растянулась
         header = self.table.horizontalHeader() # берет объект который отвечает за строку с названиями колонок
@@ -78,7 +95,6 @@ class DirectoryWindow(QWidget):
         try:
             with sq.connect('database.db') as con:
                 cur = con.cursor()
-                cur.execute(f'CREATE TABLE IF NOT EXISTS {self.name} (id INTEGER PRIMARY KEY, {", ".join([f"{col} NUMERIC" for col in self.columns])})') # NUMERIC - сам преобразовывает типы
                 values = [field.toPlainText() for field in self.input_fields]
                 placeholders = ','.join(['?'] * len(values))
                 sql = f'INSERT INTO "{self.name}" ({",".join([f'"{i}"' for i in self.columns])}) VALUES ({placeholders})'
@@ -86,7 +102,7 @@ class DirectoryWindow(QWidget):
         except Exception as e:
             print(e)
         
-
+        
         self.table.insertRow(self.table.rowCount()) # чтобы добавить новую строку
         for i in range(len(self.input_fields)):
             data = self.input_fields[i].toPlainText() # получаем данные из полей, здесь построчно и сразу построчно добавляем в таблицу

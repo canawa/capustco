@@ -82,6 +82,7 @@ class List(QMainWindow):
             cur = con.cursor()
             cur.execute('CREATE TABLE IF NOT EXISTS directories (id INTEGER PRIMARY KEY, name NUMERIC UNIQUE, columns NUMERIC)')
             cur.execute('INSERT INTO directories (name, columns) VALUES (?, ?)', (self.set_dir_name.toPlainText(), json.dumps(self.columns)))
+            cur.execute(f'CREATE TABLE IF NOT EXISTS {self.set_dir_name.toPlainText()} (id INTEGER PRIMARY KEY, {", ".join([f"{col} NUMERIC" for col in self.columns])})') # NUMERIC - сам преобразовывает типы
         
         self.open_directory(self.set_dir_name.toPlainText(), self.columns)
         
